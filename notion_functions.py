@@ -78,22 +78,160 @@ def extract_data_from_pages(pages):
 
     return extracted_data
 
+def add_info_to_notion_database(notion_token, database_id, data):
+    """
+    Adds a new row (page) to a specified Notion database.
+
+    Parameters:
+    notion_token (str): The authorization token for the Notion API.
+    database_id (str): The ID of the Notion database where the row will be added.
+    data (dict): The data for the new row.
+
+    Returns:
+    dict: The response from the Notion API.
+    """
+    headers = {
+        "Authorization": f"Bearer {notion_token}",
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json"
+    }
+
+    create_page_url = f"https://api.notion.com/v1/pages"
+
+    page_data = {
+        "parent": {"database_id": database_id},
+        "properties": {
+            "對接窗口": {"rich_text": [{"text": {"content": data['對接窗口']}}]},
+            "電話": {"phone_number": data['電話']},
+            "Email": {"email": data['Email']},
+            "部落名稱": {"title": [{"text": {"content": data['部落名稱'],"link": {"url": data['部落連結']}}}]},
+            "聯絡進度": {"select": {"name": data['聯絡進度']}},
+            "意願程度": {"select": {"name": data['意願程度']}},
+            "聯絡方式": {"select": {"name": data['聯絡方式']}}
+        }
+    }
+
+    response = requests.post(create_page_url, headers=headers, json=page_data)
+    return response.json()
+
+# Write a function to add many info into database
+def add_many_info_to_notion_database(notion_token, database_id, data_list):
+    """
+    Adds a new row (page) to a specified Notion database.
+
+    Parameters:
+    notion_token (str): The authorization token for the Notion API.
+    database_id (str): The ID of the Notion database where the row will be added.
+    data_list (list): The list of data for the new rows.
+
+    Returns:
+    dict: The response from the Notion API.
+    """
+    for data in data_list:
+        add_info_to_notion_database(notion_token, database_id, data)
+
+def create_notion_database(notion_token, parent_page_id, database_title):
+    """
+    Creates a new Notion database under a specified parent page.
+
+    Parameters:
+    notion_token (str): The authorization token for the Notion API.
+    parent_page_id (str): The ID of the parent page where the database will be created.
+    database_title (str): The title of the new database.
+    """
+    # 設定 API endpoint
+    url = "https://api.notion.com/v1/databases"
+
+    # 設定請求頭
+    headers = {
+        "Authorization": f"Bearer {notion_token}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2021-08-16"  # 使用最新的 Notion API 版本
+    }
+
+    # 定義資料庫的結構
+    data = {
+        "parent": {"type": "page_id", "page_id": parent_page_id},
+        "title": [
+            {
+                "type": "text",
+                "text": {"content": database_title}
+            }
+        ],
+        "properties": {
+            "電話": {"phone_number": {}},
+            "部落名稱": {"title": {}},
+            "對接窗口": {"rich_text": {}},
+            "Email": {"email": {}},
+            "聯絡進度": {"select": {
+                "options": [
+                    {"name": "已聯絡", "color": "blue"},
+                    {"name": "待聯絡", "color": "green"}
+                ]
+            }},
+            "意願程度": {"select": {
+                "options": [
+                    {"name": "不方便", "color": "red"},
+                    {"name": "當面了解", "color": "yellow"},
+                    {"name": "願意合作", "color": "green"},
+                    {"name": "None", "color": "gray"}
+                ]
+            }},
+            "聯絡方式": {"select": {
+                "options": [
+                    {"name": "電訪+Email", "color": "blue"},
+                    {"name": "電訪", "color": "yellow"},
+                    {"name": "Email", "color": "green"},
+                    {"name": "None", "color": "gray"}
+                ]
+            }}
+        }
+    }
+
+    # 發送請求
+    response = requests.post(url, headers=headers, json=data)
+    database_id = response.json().get('id', None)
+
+    # 返回響應
+    return database_id
 
 def main():
     NOTION_TOKEN = os.getenv("INTERNAL_INTEGRATION_SECRET")
     DATABASE_ID = os.getenv("DATABASE_ID")
-    results_json = read_notion_database(NOTION_TOKEN, DATABASE_ID)
+    PAGE_ID = os.getenv("PAGE_ID")
+    # results_json = read_notion_database(NOTION_TOKEN, DATABASE_ID)
     # Process your data using the functions
     # 'your_json_data' is the JSON data obtained from Notion API
-    pages = results_json['results']
-    extracted_data = extract_data_from_pages(pages)
+    # pages = results_json['results']
+    # extracted_data = extract_data_from_pages(pages)
 
     # Print the results
-    for data in extracted_data:
-        print(data)
-        pass
+    # for data in extracted_data:
+    #     print(data)
+    #     pass
+
+    # Test the add_row_to_notion_database function
+    # data = {
+    #     '對接窗口': '張三',
+    #     '電話': '0912345678',
+    #     'Email': 'kejcwrkjfh@gmail.com',
+    #     '部落名稱': '山村部落',
+    #     '部落連結': 'https://community.society.taichung.gov.tw/compoint/Details.aspx?Parser=99%2C6%2C22%2C%2C%2C%2C16582',
+    #     '聯絡進度': "待聯絡",
+    #     '意願程度': 'None',
+    #     '聯絡方式': 'None'
+    # }
+    # print(add_info_to_notion_database(NOTION_TOKEN, DATABASE_ID, data))
+    # 使用函式
+    database_title = '霧峰區'
+
+    response = create_notion_database(NOTION_TOKEN,PAGE_ID,database_title)
+    print(response)
 
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
     main()
+
+
+
