@@ -16,5 +16,6 @@ I've gathered essential information such as 'Contact Person', 'Phone Number', 'E
 - Email: angel112811a@gmail.com
 
 ## Demo Video
-![videos](https://drive.google.com/file/d/1LXkxGj47aH0cJRo4M2pCDWT5qVBQJB0F/view?usp=sharing)
+
+![Notion Automation Integrator](https://github.com/kjdevelop/Notion-Automation-Integrator/assets/115779924/4d782c2b-12be-4021-b578-ca219afb47d2)
 
