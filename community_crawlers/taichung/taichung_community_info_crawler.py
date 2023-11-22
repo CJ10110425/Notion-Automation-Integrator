@@ -1,12 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
 
 
 def scrape_all_data(table_url):
     """
-    从表格页面提取所有链接，并从每个链接页面提取详细信息。
+    從表格頁面提取所有鏈接，並從每個鏈接頁面提取詳細信息。
     """
-    # 首先，从表格中提取所有链接
+    # 從表格中提取所有鏈接
     response = requests.get(table_url)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -21,7 +22,7 @@ def scrape_all_data(table_url):
                 link['href']
             links.append(full_link)
 
-    # 然后，对每个链接提取详细信息
+    # 對每個鏈接提取詳細信息
     all_data = []
     for link in links:
         data = scrape_data(link)
@@ -30,11 +31,14 @@ def scrape_all_data(table_url):
 
 
 def scrape_data(url):
+    """
+    從給定的 URL 提取社團相關的詳細信息。
+    """
     response = requests.get(url)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    # 提取信息，如果找不到则返回 None
+    # 提取信息，如果找不到則返回 None
     name_element = soup.find("dd", class_="tabulation_tt", string="社團名稱")
     name = name_element.find_next_sibling(
         "dt").text.strip() if name_element else None
@@ -81,28 +85,35 @@ def scrape_data(url):
     }
 
 
-def categorize_address(data):
-    districts = ['中區', '東區', '西區', '南區', '北區', '西屯區', '南屯區', '北屯區', '豐原區', '大里區', '太平區', '東勢區', '大甲區', '清水區',
-                 '沙鹿區', '梧棲區', '后里區', '神岡區', '潭子區', '大雅區', '新社區', '石岡區', '外埔區', '大安區', '烏日區', '大肚區', '龍井區', '霧峰區', '和平區']
-    categorized_data = {district: [] for district in districts}
+def write_to_csv(data_list):
+    """
+    將數據列表寫入 CSV 文件。
+    :param data_list: 包含字典的列表，每個字典代表一行數據。
+    """
+    filename = 'community_associations.csv'
+    with open(filename, mode='w', newline='', encoding='utf-8') as file:
+        if data_list:
+            fieldnames = data_list[0].keys()
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for data in data_list:
+                writer.writerow(data)
+        else:
+            print("提供的數據列表為空。")
 
-    for entry in data:
-        address = entry.get('address', '')
-        for district in districts:
-            if district in address:
-                categorized_data[district].append(entry)
-                break
-
-    return categorized_data
+    print(f'數據已寫入 {filename}')
 
 
 def main():
+    """
+    主控制函數，生成多個 URL，提取數據，然後寫入 CSV 文件。
+    """
     base_url = 'https://community.society.taichung.gov.tw/compoint/List.aspx?Parser=99,6,22,'
     urls = []
     table_data = []
     count = 0
-    for i in range(0, 2):
-        if i == 0:  # 第一页的URL有些不同
+    for i in range(0, 62):
+        if i == 0:  # 第一頁的 URL 有些不同
             url = base_url + ',,,,,,,,,,,,400-401-403-402-404-407-408-406-420-412-411-423-437-436-433-435-421-429-427-428-426-422-438-439-414-432-434-413-424,1'
         else:
             url = base_url + ',,,,,,,' + \
@@ -113,8 +124,9 @@ def main():
         table_data.append(datas)
     for data in table_data:
         count = count + len(data)
-        print(data)
     print(count)
+    merged_data_list = [item for sublist in table_data for item in sublist]
+    write_to_csv(merged_data_list)
 
 
 if __name__ == '__main__':
