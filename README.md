@@ -12,7 +12,7 @@ I have successfully scraped data from every Community Development Association in
 I've gathered essential information such as 'Contact Person', 'Phone Number', 'Email', 'Community Name', 'Title', 'Population Count', 'Address', 'Contact Progress', 'Willingness Level', and 'Contact Method'. This data has been stored in separate CSV files for each district and then integrated into Notion's storage format. For efficient organization, different databases have been created in Notion for each district, where the scraped data is stored.
 
 ## Contributor
-- (Tsaispw (she/her))[https://github.com/tsaispw]
+- [Tsaispw (she/her)](https://github.com/tsaispw)
 - Email: angel112811a@gmail.com
 
 ## Demo Video
