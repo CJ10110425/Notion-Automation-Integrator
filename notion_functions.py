@@ -160,9 +160,12 @@ def create_notion_database(notion_token, parent_page_id, database_title):
         ],
         "properties": {
             "電話": {"phone_number": {}},
-            "部落名稱": {"title": {}},
+            "社區名稱": {"title": {}},
             "對接窗口": {"rich_text": {}},
+            "職稱": {"rich_text": {}},
             "Email": {"email": {}},
+            "人口數量":{"number":{}},
+            "地址": {"rich_text": {}},
             "聯絡進度": {"select": {
                 "options": [
                     {"name": "已聯絡", "color": "blue"},
@@ -211,22 +214,22 @@ def main():
     #     pass
 
     # Test the add_row_to_notion_database function
-    # data = {
-    #     '對接窗口': '張三',
-    #     '電話': '0912345678',
-    #     'Email': 'kejcwrkjfh@gmail.com',
-    #     '部落名稱': '山村部落',
-    #     '部落連結': 'https://community.society.taichung.gov.tw/compoint/Details.aspx?Parser=99%2C6%2C22%2C%2C%2C%2C16582',
-    #     '聯絡進度': "待聯絡",
-    #     '意願程度': 'None',
-    #     '聯絡方式': 'None'
-    # }
-    # print(add_info_to_notion_database(NOTION_TOKEN, DATABASE_ID, data))
+    data = {
+        '對接窗口': '張三',
+        '電話': '0912345678',
+        'Email': 'kejcwrkjfh@gmail.com',
+        '部落名稱': '山村部落',
+        '部落連結': 'https://community.society.taichung.gov.tw/compoint/Details.aspx?Parser=99%2C6%2C22%2C%2C%2C%2C16582',
+        '聯絡進度': "待聯絡",
+        '意願程度': 'None',
+        '聯絡方式': 'None'
+    }
+    print(add_info_to_notion_database(NOTION_TOKEN, DATABASE_ID, data))
     # 使用函式
-    database_title = '霧峰區'
+    # database_title = '霧峰區'
 
-    response = create_notion_database(NOTION_TOKEN,PAGE_ID,database_title)
-    print(response)
+    # response = create_notion_database(NOTION_TOKEN,PAGE_ID,database_title)
+    # print(response)
 
 
 if __name__ == "__main__":
